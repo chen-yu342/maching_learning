@@ -84,14 +84,56 @@ def bagOfWords2VecMN(vocabList,inputSet):
             returnVec[vocabList.index[word]] += 1
     return returnVec
 
+def textParse(bigSting):
+    listOfTokens = re.split(r'\W+',bigSting)
+    return [tok.lower() for  tok in listOfTokens if len(tok) >2]
+
+
+
+
+def spamTest():
+    docList = []
+    classList = []
+    fullText = []
+    for i in range(1, 26):  # 遍历25个txt文件
+        wordList = textParse(open('email/spam/%d.txt' % i, 'r').read())  # 读取每个垃圾邮件，并字符串转换成字符串列表
+        docList.append(wordList)
+        fullText.append(wordList)
+        classList.append(1)  # 标记垃圾邮件，1表示垃圾文件
+        wordList = textParse(open('email/ham/%d.txt' % i, 'r').read())  # 读取每个非垃圾邮件，并字符串转换成字符串列表
+        docList.append(wordList)
+        fullText.append(wordList)
+        classList.append(0)  # 标记正常邮件，0表示正常文件
+    vocabList = createVocabList(docList)  # 创建词汇表，不重复
+    trainingSet = list(range(50))
+    testSet = []  # 创建存储训练集的索引值的列表和测试集的索引值的列表
+    for i in range(10):  # 从50个邮件中，随机挑选出40个作为训练集,10个做测试集
+        randIndex = int(random.uniform(0, len(trainingSet)))  # 随机选取索索引值
+        testSet.append(trainingSet[randIndex])  # 添加测试集的索引值
+        del (trainingSet[randIndex])  # 在训练集列表中删除添加到测试集的索引值
+    trainMat = []
+    trainClasses = []  # 创建训练集矩阵和训练集类别标签系向量
+    for docIndex in trainingSet:  # 遍历训练集
+        trainMat.append(setOfWords2Vec(vocabList, docList[docIndex]))  # 将生成的词集模型添加到训练矩阵中
+        trainClasses.append(classList[docIndex])  # 将类别添加到训练集类别标签系向量中
+    p0V, p1V, pSpam = trainNB(np.array(trainMat), np.array(trainClasses))  # 训练朴素贝叶斯模型
+    errorCount = 0  # 错误分类计数
+    for docIndex in testSet:  # 遍历测试集
+        wordVector = setOfWords2Vec(vocabList, docList[docIndex])  # 测试集的词集模型
+        if classifyNB(np.array(wordVector), p0V, p1V, pSpam) != classList[docIndex]:  # 如果分类错误
+            errorCount += 1  # 错误计数加1
+            print("分类错误的测试集：",docList[docIndex])
+    print('错误率：%.2f%%' % (float(errorCount) / len(testSet) * 100))
+
 if __name__ == '__main__':
-    mySent = 'This book is the best book on Python or M.L I have ever laid eyes upon.'
-    #print(mySent.split())
-    regEx = re.compile('\\W+')
-    listOfTokens = regEx.split(mySent)
-    #print(listOfTokens)
-    listOfTokens = [tok.lower() for tok in listOfTokens if len(tok) > 0]
-    print(listOfTokens)
+    spamTest()
+    # mySent = 'This book is the best book on Python or M.L I have ever laid eyes upon.'
+    # #print(mySent.split())
+    # regEx = re.compile('\\W+')
+    # listOfTokens = regEx.split(mySent)
+    # #print(listOfTokens)
+    # listOfTokens = [tok.lower() for tok in listOfTokens if len(tok) > 0]
+    # print(listOfTokens)
 
 
 

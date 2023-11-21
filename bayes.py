@@ -1,3 +1,5 @@
+import re
+
 import numpy as np
 from  numpy import *
 
@@ -78,16 +80,23 @@ def testingNB(testVec):
         print(testVec,'属于非侮辱类')
 
 
+def textParse(bigSting):
+    listOfTokens = re.split(r'\W+',bigSting)
+    return [tok.lower() for  tok in listOfTokens if len(tok) >2]
+
+
+
+
 def spamTest():
     docList = []
     classList = []
     fullText = []
     for i in range(1, 26):  # 遍历25个txt文件
-        wordList = textParse(open('spam/%d.txt' % i, 'r').read())  # 读取每个垃圾邮件，并字符串转换成字符串列表
+        wordList = textParse(open('bayes/email/spam/%d.txt' % i, 'r').read())  # 读取每个垃圾邮件，并字符串转换成字符串列表
         docList.append(wordList)
         fullText.append(wordList)
         classList.append(1)  # 标记垃圾邮件，1表示垃圾文件
-        wordList = textParse(open('ham/%d.txt' % i, 'r').read())  # 读取每个非垃圾邮件，并字符串转换成字符串列表
+        wordList = textParse(open('bayes/email/ham/%d.txt' % i, 'r').read())  # 读取每个非垃圾邮件，并字符串转换成字符串列表
         docList.append(wordList)
         fullText.append(wordList)
         classList.append(0)  # 标记正常邮件，0表示正常文件
@@ -113,7 +122,9 @@ def spamTest():
     print('错误率：%.2f%%' % (float(errorCount) / len(testSet) * 100))
 
 
+
 if __name__ == '__main__':
+    spamTest()
     # listOposts,listClasses = loadDataset()
     # myVocablist = createVocabList(listOposts)
     #print(myVocablist)
@@ -126,10 +137,10 @@ if __name__ == '__main__':
     # print(p0v)
     # print(p1v)
     # print(pAb)
-    testVec1 = ['love','my','dalmation']
-    testingNB(testVec1)
-    testVec1 = ['stupid', 'garbage']
-    testingNB(testVec1)
+    # testVec1 = ['love','my','dalmation']
+    # testingNB(testVec1)
+    # testVec1 = ['stupid', 'garbage']
+    # testingNB(testVec1)
 
 
 
